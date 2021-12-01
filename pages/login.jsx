@@ -1,9 +1,22 @@
-
-import { getProviders } from 'next-auth/react';
-function login({providers}) {
+import { getProviders ,signIn } from "next-auth/react";
+function login({ providers }) {
   return (
-    <div>
-      <h1>This is a login page</h1>
+    <div className="flex flex-col items-center bg-black min-h-screen w-full justify-center">
+      <img
+        className="w-52 mb-5"
+        src="https://i.imgur.com/fPuEa9V.png"
+        alt="Spotify"
+      />
+      {Object.values(providers).map((provider) => (
+        <div>
+          <button
+            className="bg-[#18D860] text-white p-3 rounded-lg"
+            onClick={() => signIn(provider.id, { callbackUrl: "/" })}
+          >
+            Login with Spotify
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
@@ -11,11 +24,11 @@ function login({providers}) {
 export default login;
 
 export async function getServerSideProps() {
-    const providers = await getProviders();
+  const providers = await getProviders();
 
-    return {
-        props:{
-            providers,
-        }
-    }
+  return {
+    props: {
+      providers,
+    },
+  };
 }
