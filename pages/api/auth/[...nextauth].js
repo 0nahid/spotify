@@ -1,18 +1,19 @@
-import NextAuth from "next-auth"
-import SpotifyProvider from "next-auth/providers/spotify"
-import spotifyApi, { LOGIN_URL } from "../../../lib/spotify"
+import NextAuth from "next-auth";
+import SpotifyProvider from "next-auth/providers/spotify";
+import { LOGIN_URL, spotifyApi } from './../../../lib/spotify';
 
 async function refreshAccessToken(token) {
     try {
         spotifyApi.setAccessToken(token.accessToken);
         spotifyApi.setRefreshToken(token.refreshToken);
         const { body: refreshedToken } = await spotifyApi.refreshAccessToken();
-        console.log('refresh token is: ', refreshedToken);
+        console.log("refreshToken is ", refreshedToken);
         return {
             ...token,
             accessToken: refreshedToken.access_token,
-            accessTokenExpires = Date.now() + refreshedToken.expires_in * 1000 // 1 hour as 3600 returns from spotify api
-            refreshedToken: refreshedToken.refresh_token ?? token.refreshToken,
+            accessTokenExpires: Date.now + refreshedToken.expires_at * 1000, // we aew handling expiry from spotify api
+            refreshToken: refreshedToken.refresh_token ?? token.refreshToken
+            // refresh if new one came back else fall back to refresh token
         }
     } catch (error) {
         console.error(error)
@@ -26,7 +27,7 @@ async function refreshAccessToken(token) {
 export default NextAuth({
     // configure one or more providers here
     providers: [
-        Providers.Spotify({
+        SpotifyProvider({
             clientId: process.env.NEXT_PUBLIC_CLIENT_ID,
             clientSecret: process.env.NEXT_PUBLIC_CLIENT_SECRET,
             authorization: LOGIN_URL,
@@ -62,6 +63,7 @@ export default NextAuth({
             session.user.accessToken = token.accessToken;
             session.user.refreshToken = token.refreshToken;
             session.user.username = token.username;
+
             return session;
         }
     }

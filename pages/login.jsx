@@ -1,9 +1,21 @@
-function login() {
-    return (
-        <div>
-            <h1>This is a login page</h1>
-        </div>
-    )
+
+import { getProviders } from 'next-auth/react';
+function login({providers}) {
+  return (
+    <div>
+      <h1>This is a login page</h1>
+    </div>
+  );
 }
 
-export default login
+export default login;
+
+export async function getServerSideProps() {
+    const providers = await getProviders();
+
+    return {
+        props:{
+            providers,
+        }
+    }
+}
